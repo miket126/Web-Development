@@ -7,7 +7,7 @@ function copyFile(copy) {
     fs.readFile("original.txt", "utf8", function(err,data) {
         
         for (let i = 0; i < copy; i++) {
-            fs.writeFileSync("copy_" + (i+1), data);
+            fs.writeFileSync("copy_" + (i+1) + ".txt", data);
             console.log(i);
         }
         
