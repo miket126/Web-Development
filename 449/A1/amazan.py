@@ -13,6 +13,8 @@ app.config['MYSQL_DB'] = 'amazanstore'
 # Initialize MySQL
 mysql = MySQL(app)
 
+
+# Use endpoint to populate table
 itemdb = [
     ('electronics', 'RTX 4090', '400.00'),
     ('electronics', 'Logitech G305 Wireless Mouse', '35.99'),
@@ -21,6 +23,7 @@ itemdb = [
     ('toy', 'Fidget Spinner', '4.99'),
     ('toy', 'Nerf Gun', '79.99'),
 ]
+
 
 # Create items empty table if not exists
 with app.app_context():
@@ -34,7 +37,7 @@ with app.app_context():
         )
     """)
     mysql.connection.commit()
-    print(jsonify({'message': 'Empty database created successfully'}), 201)
+
 
 
 
@@ -49,6 +52,7 @@ def fill_tables():
         cur.close()
         return jsonify({'message': 'Database populated successfully'}), 201
     return jsonify({'error': 'Input database not found'}), 404 
+
 
 
 
@@ -70,6 +74,8 @@ def add_item():
 
 
 
+
+
 # Read
 @app.route('/v1/admin/items', methods=['GET'])
 def get_items():
@@ -78,22 +84,19 @@ def get_items():
     items = cur.fetchall()
     cur.close()
     if items:
-        #print(jsonify(items))
         return jsonify(items, {'message': 'Database returned successfully'}), 200
     else:
         return jsonify({'error': 'Table is empty'}), 400
 
 
 
+
+
 # Update
 @app.route('/v1/admin/items/sale', methods=['PUT'])
 def edit_item():
-    
     category  = request.args.get('category', None)
     price  = request.args.get('price', None)
-    
-    
-    
     
     if category and price:
         cur = mysql.connection.cursor()
@@ -104,7 +107,7 @@ def edit_item():
         cur.close()
         return jsonify({'message': 'Price changed successfully'}), 200
     else:
-        return jsonify({'error': 'Missing required fields'}), 404
+        return jsonify({'error': 'Missing required fields'}), 400
 
 
 
@@ -121,6 +124,7 @@ def delete_item(name):
         cur.execute("DELETE FROM items WHERE name = %s", (name,))
         mysql.connection.commit()
         cur.close()
+        # Will not return a message, only status code
         return jsonify({'message': 'Item deleted'}), 204
     else:
         return jsonify({'error': 'Item not found'}), 404
